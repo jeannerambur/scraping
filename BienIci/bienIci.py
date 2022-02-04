@@ -16,7 +16,6 @@ else:
 
 typedebien=input("Type de bien à louer (Appartement/maisonvilla) : ")
 
-
 listLogement = []
 
 file= open("main.html", "w")
@@ -41,6 +40,7 @@ def get_pages(count=1, headless=False):
         driver.get(page_url)
         time.sleep(20)
         pages.append(driver.page_source.encode("utf-8"))
+
     return pages
 
 def save_pages(pages):
@@ -89,6 +89,7 @@ for page_path in pages_paths :
 
 soup = BeautifulSoup(page, "html.parser")
 results = soup.find_all("div", class_="detailsContainer")
+
 file.write(f'''
 <div class="card">
     <table class="table">
@@ -133,7 +134,6 @@ for result in results:
                     <td>{nb_pieces}</td>
                     <td><img src='{photoImg}'></td>
                 </tr>
-
     ''')
 
 d = {"listLogement" : listLogement}

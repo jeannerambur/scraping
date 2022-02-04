@@ -75,20 +75,11 @@ def clean_type(tag):
     return match.group()
 
 def main():
-    pages = get_pages()
+    pages = get_pages(count=2)
     save_pages(pages)
 
 if __name__ == "__main__":
     main()
-
-
-pages_paths = os.listdir("data")
-for page_path in pages_paths :
-    with open(os.path.join("data", page_path), "rb") as f_in:
-        page = f_in.read().decode("utf-8")
-
-soup = BeautifulSoup(page, "html.parser")
-results = soup.find_all("div", class_="detailsContainer")
 
 file.write(f'''
 <div class="card">
@@ -108,33 +99,41 @@ file.write(f'''
 
 
 ''')
-id=0
-for result in results:
-    id+=1
 
-    loyer = result.find("span", class_="thePrice")
-    surface = clean_surface(result.find("span", class_="generatedTitleWithHighlight"))
-    localisation = clean_postal_code(result.find("div", class_="cityAndDistrict"))
-    type =  clean_type(result.find("span", class_="generatedTitleWithHighlight"))
-    nb_pieces =  clean_rooms(result.find("span", class_="generatedTitleWithHighlight"))
-    ville = clean_city(result.find("div", class_="cityAndDistrict"))
-    photo = result.find("img", class_="searchItemPhoto")
-    photoImg = photo.attrs['src']
+pages_paths = os.listdir("data")
+for page_path in pages_paths :
+    with open(os.path.join("data", page_path), "rb") as f_in:
+        page = f_in.read().decode("utf-8")
 
-    listLogement.append({'id': id, 'type': type, 'loyer': loyer.text, 'surface': surface, "ville": ville, "localisation": localisation, "nb_pieces": nb_pieces})
+    soup = BeautifulSoup(page, "html.parser")
+    results = soup.find_all("div", class_="detailsContainer")
+    id=0
+    for result in results:
+        id+=1
 
-    file.write(f'''
+        loyer = result.find("span", class_="thePrice")
+        surface = clean_surface(result.find("span", class_="generatedTitleWithHighlight"))
+        localisation = clean_postal_code(result.find("div", class_="cityAndDistrict"))
+        type =  clean_type(result.find("span", class_="generatedTitleWithHighlight"))
+        nb_pieces =  clean_rooms(result.find("span", class_="generatedTitleWithHighlight"))
+        ville = clean_city(result.find("div", class_="cityAndDistrict"))
+        photo = result.find("img", class_="searchItemPhoto")
+        photoImg = photo.attrs['src']
 
-                <tr>
-                    <td>{type}</td>
-                    <td>{loyer.text}</td>
-                    <td>{surface}</td>
-                    <td>{ville}</td>
-                    <td>{localisation}</td>
-                    <td>{nb_pieces}</td>
-                    <td><img src='{photoImg}'></td>
-                </tr>
-    ''')
+        listLogement.append({'id': id, 'type': type, 'loyer': loyer.text, 'surface': surface, "ville": ville, "localisation": localisation, "nb_pieces": nb_pieces})
+
+        file.write(f'''
+
+                    <tr>
+                        <td>{type}</td>
+                        <td>{loyer.text}</td>
+                        <td>{surface}</td>
+                        <td>{ville}</td>
+                        <td>{localisation}</td>
+                        <td>{nb_pieces}</td>
+                        <td><img src='{photoImg}'></td>
+                    </tr>
+        ''')
 
 d = {"listLogement" : listLogement}
 json.dump(d, open("db.json","w"))

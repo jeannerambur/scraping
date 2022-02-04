@@ -1,4 +1,5 @@
 import os
+import json
 from threading import local
 import time
 import re
@@ -15,6 +16,8 @@ else:
 
 typedebien=input("Type de bien à louer (Appartement/maisonvilla) : ")
 
+
+listLogement = []
 
 file= open("main.html", "w")
 file.write('''<!DOCTYPE html>
@@ -34,7 +37,7 @@ def get_pages(count=1, headless=False):
     pages = []
 
     for page_nb in range(1, count + 1):
-        page_url = f"https://www.bienici.com/recherche/{projet}/{localisation}/{typedebien}?prix-max={prixMax}&page={page_nb}.html"
+        page_url = f"https://www.bienici.com/recherche/{projet}/{localisation}/{typedebien}?prix-max={prixMax}&page={page_nb}"
         driver.get(page_url)
         time.sleep(20)
         pages.append(driver.page_source.encode("utf-8"))
@@ -80,9 +83,9 @@ if __name__ == "__main__":
 
 
 pages_paths = os.listdir("data")
-for pages_path in pages_paths:
-        with open(os.path.join("data", pages_path), "rb") as f_in:
-            page = f_in.read().decode("utf-8")
+for page_path in pages_paths :
+    with open(os.path.join("data", page_path), "rb") as f_in:
+        page = f_in.read().decode("utf-8")
 
 soup = BeautifulSoup(page, "html.parser")
 results = soup.find_all("div", class_="detailsContainer")
@@ -103,14 +106,18 @@ file.write(f'''
 
 
 ''')
+id=0
 for result in results:
-    loyer = result.find("span", class_="thePrice")
+    id+=1
 
+    loyer = result.find("span", class_="thePrice")
     surface = clean_surface(result.find("span", class_="generatedTitleWithHighlight"))
     localisation = clean_postal_code(result.find("div", class_="cityAndDistrict"))
     type =  clean_type(result.find("span", class_="generatedTitleWithHighlight"))
     nb_pieces =  clean_rooms(result.find("span", class_="generatedTitleWithHighlight"))
     ville = clean_city(result.find("div", class_="cityAndDistrict"))
+
+    listLogement.append({'id': id, 'type': type, 'loyer': loyer.text, 'surface': surface, "ville": ville, "localisation": localisation, "nb_pieces": nb_pieces})
 
     file.write(f'''
 
@@ -124,6 +131,10 @@ for result in results:
                 </tr>
 
     ''')
+
+d = {"listLogement" : listLogement}
+json.dump(d, open("db.json","w"))
+
 file.write('''
 
 </tbody>

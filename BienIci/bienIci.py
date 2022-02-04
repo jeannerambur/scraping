@@ -100,6 +100,7 @@ file.write(f'''
             <th scope="col">Ville</th>
             <th scope="col">Code Postal</th>
             <th scope="col">Nombre de pièces</th>
+            <th scope="col">Photo Annonce</th>
             </tr>
         </thead>
         <tbody>
@@ -116,6 +117,8 @@ for result in results:
     type =  clean_type(result.find("span", class_="generatedTitleWithHighlight"))
     nb_pieces =  clean_rooms(result.find("span", class_="generatedTitleWithHighlight"))
     ville = clean_city(result.find("div", class_="cityAndDistrict"))
+    photo = result.find("img", class_="searchItemPhoto")
+    photoImg = photo.attrs['src']
 
     listLogement.append({'id': id, 'type': type, 'loyer': loyer.text, 'surface': surface, "ville": ville, "localisation": localisation, "nb_pieces": nb_pieces})
 
@@ -128,6 +131,7 @@ for result in results:
                     <td>{ville}</td>
                     <td>{localisation}</td>
                     <td>{nb_pieces}</td>
+                    <td><img src='{photoImg}'></td>
                 </tr>
 
     ''')
